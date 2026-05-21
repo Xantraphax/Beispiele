@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Multiplexer-Simulation CD/Radio</title>
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      font-family: Arial, Helvetica, sans-serif;
+      background: #ffffff;
+      color: #000000;
+    }
+
+    .simulation {
+      width: min(1180px, 96vw);
+      padding: 20px;
+      background: #ffffff;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      text-align: center;
+      font-size: 28px;
+      font-weight: 700;
+    }
+
+    .hint {
+      margin: 0 0 14px;
+      text-align: center;
+      font-size: 16px;
+    }
+
+    .stage {
+      position: relative;
+      height: 620px;
+      background: #ffffff;
+      overflow: hidden;
+      border: 0;
+    }
+
+    /* Geräte links */
+    .radio-icon {
+      position: absolute;
+      left: 45px;
+      top: 82px;
+      width: 155px;
+      height: 160px;
+      z-index: 4;
+    }
+
+    .cd-icon {
+      position: absolute;
+      left: 38px;
+      top: 330px;
+      width: 165px;
+      height: 165px;
+      border: 4px solid #000;
+      border-radius: 50%;
+      background: #fff;
+      z-index: 4;
+    }
+
+    .speaker-icon {
+      position: absolute;
+      left: 1015px;
+      top: 230px;
+      width: 150px;
+      height: 140px;
+      z-index: 4;
+    }
+
+    .radio-body {
+      position: absolute;
+      left: 18px;
+      top: 54px;
+      width: 150px;
+      height: 105px;
+      border: 4px solid #000;
+      border-radius: 9px;
+      background: #fff;
+    }
+
+    .radio-antenna {
+      position: absolute;
+      left: 53px;
+      top: 15px;
+      width: 128px;
+      height: 4px;
+      background: #000;
+      transform: rotate(24deg);
+      transform-origin: left center;
+    }
+
+    .radio-antenna::before {
+      content: "";
+      position: absolute;
+      left: -8px;
+      top: -5px;
+      width: 13px;
+      height: 13px;
+      border-radius: 50%;
+      background: #000;
+    }
+
+    .radio-display {
+      position: absolute;
+      left: 32px;
+      top: 68px;
+      width: 120px;
+      height: 26px;
+      border: 4px solid #000;
+      background: #fff;
+    }
+
+    .radio-knob {
+      position: absolute;
+      left: 32px;
+      top: 110px;
+      width: 39px;
+      height: 39px;
+      border: 4px solid #000;
+      border-radius: 50%;
+      background: #fff;
+    }
+
+    .radio-knob::after {
+      content: "";
+      position: absolute;
+      left: 12px;
+      top: 12px;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #000;
+    }
+
+    .radio-lines {
+      position: absolute;
+      left: 84px;
+      top: 108px;
+      width: 70px;
+      height: 50px;
+      background: repeating-linear-gradient(to bottom, #000 0 4px, transparent 4px 14px);
+    }
+
+    .cd-icon::before {
+      content: "";
+      position: absolute;
+      left: 44px;
+      top: 44px;
+      width: 70px;
+      height: 70px;
+      border: 4px solid #000;
+      border-radius: 50%;
+      background: #fff;
+    }
+
+    .cd-icon::after {
+      content: "";
+      position: absolute;
+      left: 73px;
+      top: 73px;
+      width: 12px;
+      height: 12px;
+      border: 4px solid #000;
+      border-radius: 50%;
+      background: #fff;
+    }
+
+    .speaker-svg {
+      width: 100%;
+      height: 100%;
+      overflow: visible;
+    }
+
+    .speaker-svg path,
+    .speaker-svg rect {
+      fill: #ffffff;
+      stroke: #000000;
+      stroke-width: 5;
+      stroke-linejoin: round;
+      stroke-linecap: round;
+    }
+
+    .speaker-svg .sound-wave {
+      fill: none;
+      stroke: #000000;
+      stroke-width: 5;
+      stroke-linecap: round;
+      animation: speakerPulse 1.2s infinite ease-in-out;
+    }
+
+    .speaker-svg .wave-2 { animation-delay: 0.15s; }
+    .speaker-svg .wave-3 { animation-delay: 0.3s; }
+
+    @keyframes speakerPulse {
+      0%, 100% { opacity: 0.55; transform: translateX(0); }
+      50% { opacity: 1; transform: translateX(4px); }
+    }
+
+    /* Schalter */
+    .switch-wrap {
+      position: absolute;
+      left: 548px;
+      top: 540px;
+      width: 130px;
+      height: 56px;
+      border: 4px solid #000;
+      border-radius: 30px;
+      background: #fff;
+      z-index: 5;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .switch-track {
+      position: absolute;
+      inset: 8px;
+      border-radius: 24px;
+    }
+
+    .switch-knob {
+      position: absolute;
+      top: 7px;
+      left: 68px;
+      width: 34px;
+      height: 34px;
+      border: 4px solid #000;
+      border-radius: 50%;
+      background: #fff;
+      display: grid;
+      place-items: center;
+      font-weight: 700;
+      font-size: 20px;
+      transition: left 0.25s ease;
+    }
+
+    .switch-wrap[data-source="radio"] .switch-knob {
+      left: 18px;
+    }
+
+    .zero,
+    .one {
+      position: absolute;
+      top: 13px;
+      font-size: 22px;
+      font-weight: 700;
+      pointer-events: none;
+    }
+
+    .zero { left: 25px; }
+    .one { right: 22px; }
+
+    .source-note {
+      position: absolute;
+      left: 500px;
+      top: 602px;
+      font-size: 15px;
+      font-weight: 700;
+    }
+
+    .mode-toggle {
+      position: absolute;
+      left: 40px;
+      bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 16px;
+      font-weight: 700;
+      z-index: 20;
+      cursor: pointer;
+      background: rgba(255,255,255,0.9);
+      padding: 10px 14px;
+      border: 3px solid #000;
+      border-radius: 10px;
+    }
+
+    .mode-toggle input {
+      width: 20px;
+      height: 20px;
+      cursor: pointer;
+    }
+
+    .binary-block {
+      padding: 4px 8px;
+      border: 3px solid #000;
+      background: #fff;
+      border-radius: 6px;
+      font-size: 24px !important;
+      font-weight: 900;
+      line-height: 1;
+    }
+
+    /* Animierte Musiknoten */
+    .note {
+      position: absolute;
+      font-size: 38px;
+      font-weight: 900;
+      z-index: 10;
+      opacity: 0;
+      pointer-events: none;
+      line-height: 1;
+    }
+
+    .note.radio-note { color: #18a0fb; }
+    .note.cd-note { color: #ff4d4d; }
+
+    .active-glow {
+      filter: drop-shadow(0 0 5px currentColor);
+    }
+
+    @media (max-width: 900px) {
+      .simulation { transform: scale(0.72); transform-origin: top center; height: 470px; }
+      body { align-items: start; }
+    }
+      /* Korrektur: blaues Viereck in der Mitte sichtbar machen */
+    .mux {
+      position: absolute !important;
+      left: 392px !important;
+      top: 70px !important;
+      width: 438px !important;
+      height: 438px !important;
+      background: #82c9e6 !important;
+      border: none !important;
+      z-index: 15 !important;
+      display: block !important;
+    }
+
+    .mux-label {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 18px;
+      text-align: center;
+      font-size: 28px;
+      font-weight: 700;
+      color: rgba(0, 0, 0, 0.45);
+    }
+  </style>
+</head>
+<body>
+  <main class="simulation">
+    <h1>Multiplexer-Simulation am Beispiel eines CD-Players</h1>
+    <p class="hint">Klicke auf den Schalter: 0 = Radio, 1 = CD. Nur die ausgewählte Quelle wird zum Lautsprecher geleitet.</p>
+
+    <section class="stage" id="stage">
+      <div class="radio-icon" aria-label="Radio">
+        <div class="radio-antenna"></div>
+        <div class="radio-body"></div>
+        <div class="radio-display"></div>
+        <div class="radio-knob"></div>
+        <div class="radio-lines"></div>
+      </div>
+
+      <div class="cd-icon" aria-label="CD"></div>
+
+      <div class="arrow arrow-radio"></div>
+      <div class="arrow arrow-cd"></div>
+
+      <div class="mux">
+        <div class="mux-label">Multiplexer</div>
+      </div>
+
+      <div class="arrow arrow-out"></div>
+
+      <div class="speaker-icon" aria-label="Lautsprecher">
+        <svg class="speaker-svg" viewBox="0 0 180 150" role="img" aria-label="Lautsprecher-Symbol">
+          <!-- Lautsprecher: kleines Rechteck links, großer Schalltrichter rechts -->
+          <rect x="6" y="54" width="38" height="44"></rect>
+          <path d="M44 54 L118 15 L118 137 L44 98 Z"></path>
+
+          <!-- Schallwellen wie in der Vorlage -->
+          <path class="sound-wave wave-1" d="M140 60 C153 72 153 84 140 96"></path>
+          <path class="sound-wave wave-2" d="M154 42 C177 63 177 93 154 114"></path>
+          <path class="sound-wave wave-3" d="M170 28 C202 58 202 98 170 128"></path>
+        </svg>
+      </div>
+
+      <div class="arrow arrow-select"></div>
+
+      <div class="switch-wrap" id="switch" data-source="cd" role="button" tabindex="0" aria-label="Multiplexer-Auswahl umschalten">
+        <div class="switch-track"></div>
+        <span class="zero">0</span>
+        <span class="one">1</span>
+        <div class="switch-knob" id="knob">1</div>
+      </div>
+      <div class="source-note" id="sourceNote">Auswahl: CD</div>
+
+      <label class="mode-toggle">
+        <input type="checkbox" id="binaryToggle">
+      </label>
+    </section>
+  </main>
+
+  <script>
+    const stage = document.getElementById('stage');
+    const switchEl = document.getElementById('switch');
+    const knob = document.getElementById('knob');
+    const sourceNote = document.getElementById('sourceNote');
+    const binaryToggle = document.getElementById('binaryToggle');
+
+    let selectedSource = 'cd';
+    const symbols = ['♪', '♫', '♬', '♩'];
+
+    const p = {
+      radioStart: { x: 205, y: 148 },
+      cdStart: { x: 205, y: 374 },
+      radioMux: { x: 420, y: 150 },
+      cdMux: { x: 420, y: 374 },
+      centerMux: { x: 585, y: 285 },
+      exitMux: { x: 830, y: 285 },
+      speaker: { x: 1015, y: 280 }
+    };
+
+    function setSource(source) {
+      selectedSource = source;
+      switchEl.dataset.source = source;
+      knob.textContent = source === 'cd' ? '1' : '0';
+      sourceNote.textContent = source === 'cd' ? 'Auswahl: CD' : 'Auswahl: Radio';
+    }
+
+    function randomSymbol(source) {
+      if (binaryToggle.checked) {
+        return Math.random() > 0.5 ? '1' : '0';
+      }
+
+      const notes = ['♪', '♫', '♬', '♩'];
+      return notes[Math.floor(Math.random() * notes.length)];
+    }
+
+    function createNote(source) {
+      const note = document.createElement('div');
+      note.className = `note ${source}-note`;
+      note.textContent = randomSymbol(source);
+
+      if (binaryToggle.checked) {
+        note.classList.add('binary-block');
+      }
+      stage.appendChild(note);
+
+      const active = selectedSource === source;
+      const start = source === 'radio' ? p.radioStart : p.cdStart;
+      const muxIn = source === 'radio' ? p.radioMux : p.cdMux;
+
+      const keyframes = [
+        { transform: `translate(${start.x}px, ${start.y}px) scale(0.8)`, opacity: 0 },
+        { transform: `translate(${start.x + 70}px, ${start.y}px) scale(1)`, opacity: 1, offset: 0.18 },
+        { transform: `translate(${muxIn.x}px, ${muxIn.y}px) scale(1)`, opacity: 1, offset: 0.42 },
+        { transform: `translate(${p.centerMux.x}px, ${p.centerMux.y}px) scale(0.65)`, opacity: active ? 1 : 0.15, offset: 0.58 },
+        active
+          ? { transform: `translate(${p.exitMux.x}px, ${p.centerMux.y}px) scale(1)`, opacity: 1, offset: 0.77 }
+          : { transform: `translate(${p.centerMux.x}px, ${p.centerMux.y}px) scale(0.08)`, opacity: 0, offset: 0.77 },
+        active
+          ? { transform: `translate(${p.speaker.x}px, ${p.speaker.y}px) scale(1.05)`, opacity: 1, offset: 0.92 }
+          : { transform: `translate(${p.centerMux.x}px, ${p.centerMux.y}px) scale(0.02)`, opacity: 0, offset: 0.92 },
+        active
+          ? { transform: `translate(${p.speaker.x + 55}px, ${p.speaker.y - 20}px) scale(0.2)`, opacity: 0 }
+          : { transform: `translate(${p.centerMux.x}px, ${p.centerMux.y}px) scale(0.02)`, opacity: 0 }
+      ];
+
+      const animation = note.animate(keyframes, {
+        duration: 3400,
+        easing: 'ease-in-out',
+        fill: 'forwards'
+      });
+
+      animation.onfinish = () => note.remove();
+    }
+
+    function toggleSwitch() {
+      setSource(selectedSource === 'cd' ? 'radio' : 'cd');
+    }
+
+    switchEl.addEventListener('click', toggleSwitch);
+    switchEl.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        toggleSwitch();
+      }
+    });
+
+    setInterval(() => createNote('radio'), 950);
+    setInterval(() => createNote('cd'), 1150);
+    setSource('cd');
+  </script>
+</body>
+</html>
