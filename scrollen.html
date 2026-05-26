@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Scratch-Visualisierung</title>
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      color: #222;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+      padding: 30px;
+    }
+
+    h1, h2, p { margin-top: 0; }
+    h1 { font-size: 26px; text-align: center; }
+
+    .layout {
+      width: min(1200px, 96vw);
+      display: grid;
+      grid-template-columns: minmax(320px, 700px) minmax(280px, 1fr);
+      gap: 20px;
+      align-items: start;
+    }
+
+    .card {
+      background: white;
+      border-radius: 14px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+      padding: 20px;
+    }
+
+    .controls {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-bottom: 14px;
+    }
+
+    button {
+      padding: 10px 18px;
+      border: none;
+      border-radius: 8px;
+      background: #111827;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    button:hover { background: #374151; }
+
+    svg {
+      width: 100%;
+      height: auto;
+      display: block;
+      border: 1px solid #ddd;
+      background: #fff;
+    }
+
+    .panel-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    .value-box {
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      padding: 10px;
+      background: #fafafa;
+      transition: background 0.2s ease, border-color 0.2s ease;
+    }
+
+    .label {
+      display: block;
+      font-size: 12px;
+      color: #666;
+      margin-bottom: 3px;
+    }
+
+    .formula {
+      font-size: 12px;
+      color: #666;
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    .value {
+      font-weight: bold;
+      font-size: 18px;
+      transition: color 0.2s ease;
+    }
+
+    .value-box.active {
+      background: #dcfce7;
+      border-color: #22c55e;
+    }
+
+    .value-box.active .label,
+    .value-box.active .formula,
+    .value-box.active .value {
+      color: #166534;
+    }
+
+    .scratch-block {
+      background: #ffb21a;
+      border-left: 6px solid #ffd500;
+      border-radius: 10px;
+      padding: 12px;
+      margin: 10px 0;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .scratch-block.blue {
+      background: #4c97ff;
+      color: white;
+      border-left-color: #3373cc;
+    }
+
+    .scratch-block.green {
+      background: #59c059;
+      color: white;
+      border-left-color: #3a983a;
+    }
+
+    ul { padding-left: 20px; }
+    li { margin-bottom: 7px; }
+
+    @media (max-width: 850px) {
+      .layout { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <h1>Visualisierung des Scratch-Programms</h1>
+
+  <div class="layout">
+    <section class="card">
+      <div class="controls">
+        <button id="moveUp" type="button">Pfeil nach oben</button>
+        <button id="moveDown" type="button">Pfeil nach unten</button>
+        <button id="reset" type="button">Zurücksetzen</button>
+      </div>
+
+      <svg width="210mm" height="297mm" viewBox="0 0 210 297" version="1.1" id="svg1" xmlns="http://www.w3.org/2000/svg">
+        <g id="layer1">
+          <rect
+            id="rect2-4"
+            width="98.11219"
+            height="73.584137"
+            x="56.174438"
+            y="30.99061"
+            style="fill:#ffff00;fill-opacity:0;fill-rule:evenodd;stroke:#000000;stroke-width:0.4;stroke-dasharray:0.4, 1.6;stroke-dashoffset:0;stroke-opacity:1" />
+
+          <rect
+            id="rect1"
+            width="53.582981"
+            height="49.780319"
+            x="36.98954"
+            y="42.174988"
+            style="fill:#ffff00;fill-opacity:0;fill-rule:evenodd;stroke-width:0.1" />
+
+          <rect
+            id="rect2"
+            width="98.11219"
+            height="73.584137"
+            x="56.175705"
+            y="104.57324"
+            style="fill:#ffff00;fill-opacity:0;fill-rule:evenodd;stroke:#000000;stroke-width:0.4;stroke-dasharray:none;stroke-opacity:1" />
+
+          <g id="catSprite" transform="translate(105.23 141.37) scale(0.34)">
+            <g id="catPose1">
+              <ellipse cx="0" cy="0" rx="18" ry="8" fill="#f59e0b" stroke="#111827" stroke-width="1" />
+              <circle cx="16" cy="-5" r="7" fill="#f59e0b" stroke="#111827" stroke-width="1" />
+              <polygon points="11,-10 14,-20 18,-10" fill="#f59e0b" stroke="#111827" stroke-width="1" />
+              <polygon points="18,-10 23,-19 24,-8" fill="#f59e0b" stroke="#111827" stroke-width="1" />
+              <circle cx="18" cy="-6" r="1" fill="#111827" />
+              <circle cx="23" cy="-6" r="1" fill="#111827" />
+              <path d="M23 -2 Q28 0 32 -2" fill="none" stroke="#111827" stroke-width="1" />
+              <path d="M-17 -2 Q-27 -9 -22 -17" fill="none" stroke="#111827" stroke-width="3" stroke-linecap="round" />
+              <path d="M-10 6 L-15 15" stroke="#111827" stroke-width="3" stroke-linecap="round" />
+              <path d="M2 7 L7 16" stroke="#111827" stroke-width="3" stroke-linecap="round" />
+              <path d="M9 6 L5 14" stroke="#111827" stroke-width="3" stroke-linecap="round" />
+              <path d="M-3 7 L-1 16" stroke="#111827" stroke-width="3" stroke-linecap="round" />
+            </g>
+
+            <g id="catPose2" style="display:none">
+              <ellipse cx="0" cy="0" rx="18" ry="8" fill="#f59e0b" stroke="#111827" stroke-width="1" />
+              <circle cx="16" cy="-5" r="7" fill="#f59e0b" stroke="#111827" stroke-width="1" />
+              <polygon points="11,-10 14,-20 18,-10" fill="#f59e0b" stroke="#111827" stroke-width="1" />
+              <polygon points="18,-10 23,-19 24,-8" fill="#f59e0b" stroke="#111827" stroke-width="1" />
+              <circle cx="18" cy="-6" r="1" fill="#111827" />
+              <circle cx="23" cy="-6" r="1" fill="#111827" />
+              <path d="M23 -2 Q28 0 32 -2" fill="none" stroke="#111827" stroke-width="1" />
+              <path d="M-17 -2 Q-29 -2 -27 -12" fill="none" stroke="#111827" stroke-width="3" stroke-linecap="round" />
+              <path d="M-10 6 L-4 15" stroke="#111827" stroke-width="3" stroke-linecap="round" />
+              <path d="M2 7 L-6 15" stroke="#111827" stroke-width="3" stroke-linecap="round" />
+              <path d="M9 6 L14 15" stroke="#111827" stroke-width="3" stroke-linecap="round" />
+              <path d="M-3 7 L5 16" stroke="#111827" stroke-width="3" stroke-linecap="round" />
+            </g>
+          </g>
+
+          <rect
+            id="rectFollower"
+            width="12.790779"
+            height="12.790776"
+            x="64.126732"
+            y="67.583687"
+            style="fill:#ff8c00;fill-opacity:0.35;fill-rule:evenodd;stroke:#9a5400;stroke-width:0.4;stroke-dasharray:0.8, 0.8;stroke-opacity:1" />
+
+          <rect
+            id="rect3"
+            width="12.790779"
+            height="12.790776"
+            x="64.126732"
+            y="67.583687"
+            style="fill:#00caff;fill-opacity:0.538462;fill-rule:evenodd;stroke:#000000;stroke-width:0.4;stroke-dasharray:0.4, 1.6;stroke-dashoffset:0;stroke-opacity:1" />
+
+          <text style="font-size:3.52778px;line-height:1.25;font-family:Arial;stroke-width:0.264583" x="38.804451" y="179.67584">-240, -180</text>
+          <text style="font-size:3.52778px;line-height:1.25;font-family:Arial;stroke-width:0.264583" x="155.03972" y="179.65628">240, -180</text>
+          <text style="font-size:3.52778px;line-height:1.25;font-family:Arial;stroke-width:0.264583" x="38.685337" y="105.71825">-240, 180</text>
+          <text style="font-size:3.52778px;line-height:1.25;font-family:Arial;stroke-width:0.264583" x="154.85049" y="105.97319">240, 180</text>
+          <text style="font-size:3.52778px;line-height:1.25;font-family:Arial;stroke-width:0.264583" x="38.127178" y="31.354424">-240, 540</text>
+          <text style="font-size:3.52778px;line-height:1.25;font-family:Arial;stroke-width:0.264583" x="155.4492" y="32.35144">240, 540</text>
+        </g>
+      </svg>
+    </section>
+
+    <aside class="card">
+      <h2>Scratch-Variablen</h2>
+
+      <div class="panel-grid">
+        <div class="value-box">
+          <span class="label">Global Y</span>
+          <span class="value" id="globalYValue">0</span>
+        </div>
+
+        <div class="value-box">
+          
+          <span class="formula">Y = Start Y - Global Y</span>
+          <span class="value" id="spriteYValue">300 - 0 = 300</span>
+        </div>
+
+        <div class="value-box" id="rect3YBox">
+          <span class="label">Y-Position</span>
+          <span class="value" id="rect3YValue">165</span>
+        </div>
+
+        <div class="value-box" id="visibleBox">
+          <span class="label">Sichtbar?</span>
+          <span class="value" id="visibleValue">nein</span>
+        </div>
+      </div>
+
+      <h2>Was wird visualisiert?</h2>
+
+      <div class="scratch-block green">
+        <strong>Hauptakteur:</strong><br />
+        Beim Klick auf die grüne Flagge werden <strong>Global X</strong> und <strong>Global Y</strong> auf 0 gesetzt.
+        Wird die Pfeiltaste nach oben gedrückt, steigt <strong>Global Y</strong> um 15, solange Global Y kleiner als 720 ist.
+        Wird die Pfeiltaste nach unten gedrückt, sinkt <strong>Global Y</strong> um 15, solange Global Y größer als -180 ist.
+      </div>
+
+	      <div class="scratch-block">
+        <strong>Orange Viereck</strong><br />
+        Das orange Rechteck ist die eigentliche Figur. In Scratch müssen alle Figuren eine Poition innehrlab der Spielfläche haben. Es startet bei X = -230 und Y = 165 und ist zunächst unsichtbar.
+        Nach oben kann es maximal bis zu seiner Startposition zurückgehen.
+      </div>
+	  
+      <div class="scratch-block blue">
+        <strong>Blaue Viereck</strong><br />
+        Das blaue Viereck ist keine Figur, sondern dient als Veranschauung der Position vom Orangen Viereck.
+		Die Variable <strong>Y = Start Y - Global Y</strong> wird fortlaufend berechnet.
+        Danach prüft Scratch: <strong>wenn Y &lt; 180 und Y &gt; -237</strong>, dann wird das Sprite gezeigt und mit <strong>setze y auf Y</strong> tatsächlich bewegt.
+      </div>
+
+	<br>
+      <h2>Hinweise</h2>
+      <ul>
+        <li>Du kannst die Buttons oder die echten Pfeiltasten der Tastatur benutzen.</li>
+        <li>Das Viereck wird erst sichtbar, sobald seine Y-Position 165 oder kleiner erreicht.</li>
+      </ul>
+    </aside>
+  </div>
+
+  <script>
+    'use strict';
+
+    const rect2 = document.getElementById('rect2');
+    const rectTop = document.getElementById('rect2-4');
+    const rect3 = document.getElementById('rect3');
+    const rectFollower = document.getElementById('rectFollower');
+    const catSprite = document.getElementById('catSprite');
+    const catPose1 = document.getElementById('catPose1');
+    const catPose2 = document.getElementById('catPose2');
+
+    const globalYValue = document.getElementById('globalYValue');
+    const spriteYValue = document.getElementById('spriteYValue');
+    const rect3YValue = document.getElementById('rect3YValue');
+    const visibleValue = document.getElementById('visibleValue');
+    const visibleBox = document.getElementById('visibleBox');
+    const rect3YBox = document.getElementById('rect3YBox');
+
+    const moveUpButton = document.getElementById('moveUp');
+    const moveDownButton = document.getElementById('moveDown');
+    const resetButton = document.getElementById('reset');
+
+    const worldMinX = -240;
+    const worldMaxX = 240;
+    const worldMinY = -180;
+    const worldMaxY = 540;
+
+    const scratchMinGlobalY = -180;
+    const scratchMaxGlobalY = 720;
+    const scratchStep = 15;
+
+    const scratchSpriteHeight = 57;
+    const scratchVisibleTop = 180;
+    const scratchVisibleBottom = -180 - scratchSpriteHeight;
+
+    const startWorldX = -230;
+    const startWorldY = 300;
+    const initialActualScratchY = 165;
+    const followerStartY = 165;
+
+    const state = {
+      globalX: 0,
+      globalY: 0,
+      startX: startWorldX,
+      startY: startWorldY,
+      variableY: startWorldY,
+      actualScratchY: initialActualScratchY,
+      followerY: followerStartY,
+      catStep: 0
+    };
+
+    function requireElement(element, id) {
+      if (!element) {
+        throw new Error('Benötigtes Element fehlt: #' + id);
+      }
+      return element;
+    }
+
+    function numberAttr(element, attributeName) {
+      requireElement(element, 'unbekannt');
+      const value = parseFloat(element.getAttribute(attributeName));
+      if (Number.isNaN(value)) {
+        throw new Error('Ungültiges numerisches Attribut: ' + attributeName);
+      }
+      return value;
+    }
+
+    [
+      [rect2, 'rect2'],
+      [rectTop, 'rect2-4'],
+      [rect3, 'rect3'],
+      [rectFollower, 'rectFollower'],
+      [catSprite, 'catSprite'],
+      [catPose1, 'catPose1'],
+      [catPose2, 'catPose2'],
+      [globalYValue, 'globalYValue'],
+      [spriteYValue, 'spriteYValue'],
+      [rect3YValue, 'rect3YValue'],
+      [visibleValue, 'visibleValue'],
+      [visibleBox, 'visibleBox'],
+      [rect3YBox, 'rect3YBox'],
+      [moveUpButton, 'moveUp'],
+      [moveDownButton, 'moveDown'],
+      [resetButton, 'reset']
+    ].forEach(function ([element, id]) {
+      requireElement(element, id);
+    });
+
+    const svgMinX = numberAttr(rect2, 'x');
+    const svgMaxX = numberAttr(rectTop, 'x') + numberAttr(rectTop, 'width');
+    const svgBottomY = numberAttr(rect2, 'y') + numberAttr(rect2, 'height');
+    const svgTopY = numberAttr(rectTop, 'y');
+
+    function clamp(value, min, max) {
+      return Math.min(Math.max(value, min), max);
+    }
+
+    function getRectData(rect) {
+      const x = numberAttr(rect, 'x');
+      const y = numberAttr(rect, 'y');
+      const width = numberAttr(rect, 'width');
+      const height = numberAttr(rect, 'height');
+      return { left: x, right: x + width, top: y, bottom: y + height, width, height };
+    }
+
+    function rectanglesOverlap(a, b) {
+      return a.left < b.right && a.right > b.left && a.top < b.bottom && a.bottom > b.top;
+    }
+
+    function rectFullyContains(container, inner) {
+      return inner.left >= container.left &&
+        inner.right <= container.right &&
+        inner.top >= container.top &&
+        inner.bottom <= container.bottom;
+    }
+
+    function svgToWorldX(svgX) {
+      return worldMinX + ((svgX - svgMinX) / (svgMaxX - svgMinX)) * (worldMaxX - worldMinX);
+    }
+
+    function svgToWorldY(svgY) {
+      return worldMinY + ((svgBottomY - svgY) / (svgBottomY - svgTopY)) * (worldMaxY - worldMinY);
+    }
+
+    function worldToSvgX(worldX) {
+      return svgMinX + ((worldX - worldMinX) / (worldMaxX - worldMinX)) * (svgMaxX - svgMinX);
+    }
+
+    function worldToSvgY(worldY) {
+      return svgBottomY - ((worldY - worldMinY) / (worldMaxY - worldMinY)) * (svgBottomY - svgTopY);
+    }
+
+    function getBottomLeftWorldPosition(rect) {
+      const rectX = numberAttr(rect, 'x');
+      const rectY = numberAttr(rect, 'y');
+      const rectHeight = numberAttr(rect, 'height');
+      return { x: svgToWorldX(rectX), y: svgToWorldY(rectY + rectHeight) };
+    }
+
+    function setBottomLeftWorldPosition(rect, worldX, worldY) {
+      const rectWidth = numberAttr(rect, 'width');
+      const rectHeight = numberAttr(rect, 'height');
+
+      const minWorldX = worldMinX;
+      const maxWorldX = svgToWorldX(svgMaxX - rectWidth);
+      const minWorldY = worldMinY;
+      const maxWorldY = svgToWorldY(svgTopY + rectHeight);
+
+      const clampedWorldX = clamp(worldX, minWorldX, maxWorldX);
+      const clampedWorldY = clamp(worldY, minWorldY, maxWorldY);
+      const svgX = worldToSvgX(clampedWorldX);
+      const svgBottomLeftY = worldToSvgY(clampedWorldY);
+      const svgY = svgBottomLeftY - rectHeight;
+
+      rect.setAttribute('x', String(svgX));
+      rect.setAttribute('y', String(svgY));
+    }
+
+    function setRect3BottomLeftWorldPosition(worldX, worldY) {
+      setBottomLeftWorldPosition(rect3, worldX, worldY);
+    }
+
+    function setFollowerBottomLeftWorldPosition(worldX, worldY) {
+      setBottomLeftWorldPosition(rectFollower, worldX, worldY);
+    }
+
+    function updateRect3Appearance() {
+      const rect3Position = getBottomLeftWorldPosition(rect3);
+      const rect3Data = getRectData(rect3);
+      const overlapsRect2 = rectanglesOverlap(rect3Data, getRectData(rect2));
+      const reachedVisibleY = rect3Position.y <= followerStartY;
+
+      if (reachedVisibleY && overlapsRect2) {
+        rect3.style.opacity = '1';
+        rect3.style.strokeDasharray = 'none';
+      } else {
+        rect3.style.opacity = '0.25';
+        rect3.style.strokeDasharray = '0.4, 1.6';
+      }
+    }
+
+    function toggleCatWalkPose() {
+      state.catStep = 1 - state.catStep;
+      catPose1.style.display = state.catStep === 0 ? 'block' : 'none';
+      catPose2.style.display = state.catStep === 1 ? 'block' : 'none';
+    }
+
+    function updateFollowerPosition() {
+      if (state.variableY <= followerStartY) {
+        state.followerY = Math.min(state.variableY, followerStartY);
+      }
+
+      setFollowerBottomLeftWorldPosition(startWorldX, state.followerY);
+    }
+
+    function updateScratchSprite() {
+      state.variableY = state.startY - state.globalY;
+
+      const scratchVisible = state.variableY < scratchVisibleTop && state.variableY > scratchVisibleBottom;
+      visibleValue.textContent = scratchVisible ? 'ja' : 'nein';
+
+      if (scratchVisible) {
+        state.actualScratchY = state.variableY;
+      }
+
+      setRect3BottomLeftWorldPosition(startWorldX, state.variableY);
+      updateFollowerPosition();
+      updateRect3Appearance();
+      updateDisplay();
+    }
+
+    function updateDisplay() {
+      const rect3Position = getBottomLeftWorldPosition(rect3);
+      const reachedVisibleY = rect3Position.y <= followerStartY;
+
+      globalYValue.textContent = state.globalY.toFixed(0);
+      spriteYValue.textContent = `${state.startY} - ${state.globalY} = ${state.variableY.toFixed(0)}`;
+      rect3YValue.textContent = state.actualScratchY.toFixed(0);
+
+      visibleBox.classList.toggle('active', reachedVisibleY);
+      rect3YBox.classList.toggle('active', reachedVisibleY);
+    }
+
+    function moveScratchUp() {
+      if (state.globalY < scratchMaxGlobalY) {
+        state.globalY = clamp(state.globalY + scratchStep, scratchMinGlobalY, scratchMaxGlobalY);
+        updateScratchSprite();
+        toggleCatWalkPose();
+      }
+    }
+
+    function moveScratchDown() {
+      if (state.globalY > scratchMinGlobalY) {
+        state.globalY = clamp(state.globalY - scratchStep, scratchMinGlobalY, scratchMaxGlobalY);
+        updateScratchSprite();
+        toggleCatWalkPose();
+      }
+    }
+
+    function resetScratch() {
+      state.globalX = 0;
+      state.globalY = 0;
+      state.startX = startWorldX;
+      state.startY = startWorldY;
+      state.variableY = startWorldY;
+      state.actualScratchY = initialActualScratchY;
+      state.followerY = followerStartY;
+      state.catStep = 0;
+      catPose1.style.display = 'block';
+      catPose2.style.display = 'none';
+      setFollowerBottomLeftWorldPosition(startWorldX, state.followerY);
+      updateScratchSprite();
+    }
+
+    function runTests() {
+      console.assert(rect2 !== null, 'Test 0a fehlgeschlagen: rect2 fehlt.');
+      console.assert(rectTop !== null, 'Test 0b fehlgeschlagen: rect2-4 fehlt.');
+      console.assert(rect3 !== null, 'Test 0c fehlgeschlagen: rect3 fehlt.');
+      console.assert(rectFollower !== null, 'Test 0d fehlgeschlagen: rectFollower fehlt.');
+      console.assert(catSprite !== null, 'Test 0i fehlgeschlagen: catSprite fehlt.');
+      console.assert(catPose1 !== null, 'Test 0j fehlgeschlagen: catPose1 fehlt.');
+      console.assert(catPose2 !== null, 'Test 0k fehlgeschlagen: catPose2 fehlt.');
+      console.assert(globalYValue !== null, 'Test 0e fehlgeschlagen: globalYValue fehlt.');
+      console.assert(spriteYValue !== null, 'Test 0f fehlgeschlagen: spriteYValue fehlt.');
+      console.assert(rect3YValue !== null, 'Test 0g fehlgeschlagen: rect3YValue fehlt.');
+      console.assert(visibleValue !== null, 'Test 0h fehlgeschlagen: visibleValue fehlt.');
+
+      console.assert(rectanglesOverlap(
+        { left: 0, right: 10, top: 0, bottom: 10 },
+        { left: 5, right: 15, top: 5, bottom: 15 }
+      ) === true, 'Test 1 fehlgeschlagen: Rechtecke sollten sich überschneiden.');
+
+      console.assert(rectanglesOverlap(
+        { left: 0, right: 10, top: 0, bottom: 10 },
+        { left: 10, right: 20, top: 0, bottom: 10 }
+      ) === false, 'Test 2 fehlgeschlagen: Nur berührende Kanten gelten nicht als Überschneidung.');
+
+      console.assert(rectFullyContains(
+        { left: 0, right: 10, top: 0, bottom: 10 },
+        { left: 2, right: 8, top: 2, bottom: 8 }
+      ) === true, 'Test 2a fehlgeschlagen: Inneres Rechteck sollte vollständig enthalten sein.');
+
+      console.assert(rectFullyContains(
+        { left: 0, right: 10, top: 0, bottom: 10 },
+        { left: -1, right: 8, top: 2, bottom: 8 }
+      ) === false, 'Test 2b fehlgeschlagen: Rechteck darf nicht teilweise außerhalb liegen.');
+
+      console.assert(Math.abs(svgToWorldX(svgMinX) - worldMinX) < 0.001, 'Test 3 fehlgeschlagen: svgMinX muss -240 ergeben.');
+      console.assert(Math.abs(svgToWorldX(svgMaxX) - worldMaxX) < 0.001, 'Test 4 fehlgeschlagen: svgMaxX muss 240 ergeben.');
+      console.assert(Math.abs(svgToWorldY(svgBottomY) - worldMinY) < 0.001, 'Test 5 fehlgeschlagen: svgBottomY muss -180 ergeben.');
+      console.assert(Math.abs(svgToWorldY(svgTopY) - worldMaxY) < 0.001, 'Test 6 fehlgeschlagen: svgTopY muss 540 ergeben.');
+
+      resetScratch();
+      console.assert(state.globalX === 0, 'Test 7 fehlgeschlagen: Global X muss nach Reset 0 sein.');
+      console.assert(state.globalY === 0, 'Test 8 fehlgeschlagen: Global Y muss nach Reset 0 sein.');
+      console.assert(state.variableY === 300, 'Test 9 fehlgeschlagen: Variable Y muss Start Y - Global Y entsprechen.');
+      console.assert(state.actualScratchY === 165, 'Test 9c fehlgeschlagen: Tatsächlicher Scratch-y muss beim Start 165 sein.');
+      console.assert(getBottomLeftWorldPosition(rect3).y > followerStartY, 'Test 9e fehlgeschlagen: rect3 muss initial oberhalb von 165 starten.');
+
+      const startPosition = getBottomLeftWorldPosition(rect3);
+      const followerPosition = getBottomLeftWorldPosition(rectFollower);
+      console.assert(Math.abs(startPosition.x - startWorldX) < 0.001, 'Test 9a fehlgeschlagen: rect3 Start-X muss -230 sein.');
+      console.assert(Math.abs(startPosition.y - startWorldY) < 0.001, 'Test 9b fehlgeschlagen: rect3 Start-Y muss 300 sein.');
+      console.assert(Math.abs(followerPosition.y - followerStartY) < 0.001, 'Test 9d fehlgeschlagen: Mitnehmer-Y muss beim Start 165 sein.');
+
+      state.globalY = 720;
+      updateScratchSprite();
+      moveScratchUp();
+      console.assert(state.globalY === 720, 'Test 10 fehlgeschlagen: Global Y darf nicht über 720 steigen.');
+
+      state.globalY = -180;
+      updateScratchSprite();
+      moveScratchDown();
+      console.assert(state.globalY === -180, 'Test 11 fehlgeschlagen: Global Y darf nicht unter -180 sinken.');
+
+      resetScratch();
+
+      setRect3BottomLeftWorldPosition(startWorldX, followerStartY + 1);
+      updateRect3Appearance();
+      console.assert(rect3.style.opacity !== '1', 'Test 12 fehlgeschlagen: rect3 darf oberhalb von 165 nicht sichtbar sein.');
+
+      setRect3BottomLeftWorldPosition(startWorldX, followerStartY);
+      updateRect3Appearance();
+      console.assert(rect3.style.opacity === '1', 'Test 13 fehlgeschlagen: rect3 muss bei 165 sichtbar werden.');
+
+      resetScratch();
+      console.assert(state.followerY === followerStartY, 'Test 14 fehlgeschlagen: Mitnehmer muss initial bei 165 stehen.');
+
+      state.globalY = 120;
+      updateScratchSprite();
+      console.assert(state.variableY === 180, 'Test 15 fehlgeschlagen: Variable Y sollte 180 sein.');
+      console.assert(state.followerY === followerStartY, 'Test 16 fehlgeschlagen: Mitnehmer darf sich oberhalb von 165 nicht bewegen.');
+
+      state.globalY = 135;
+      updateScratchSprite();
+      console.assert(state.variableY === 165, 'Test 17 fehlgeschlagen: Variable Y sollte 165 sein.');
+      console.assert(state.followerY === followerStartY, 'Test 18 fehlgeschlagen: Mitnehmer soll bei 165 andocken.');
+
+      state.globalY = 150;
+      updateScratchSprite();
+      console.assert(state.variableY === 150, 'Test 19 fehlgeschlagen: Variable Y sollte 150 sein.');
+      console.assert(state.followerY === 150, 'Test 20 fehlgeschlagen: Mitnehmer soll rect3 nach unten folgen.');
+
+      resetScratch();
+
+      const previousCatStep = state.catStep;
+      moveScratchUp();
+      console.assert(state.catStep !== previousCatStep, 'Test 21 fehlgeschlagen: Katzenpose muss bei Bewegung wechseln.');
+
+      resetScratch();
+    }
+
+    moveUpButton.addEventListener('click', moveScratchUp);
+    moveDownButton.addEventListener('click', moveScratchDown);
+    resetButton.addEventListener('click', resetScratch);
+
+    window.addEventListener('keydown', function (event) {
+      if (event.key === 'ArrowUp') {
+        event.preventDefault();
+        moveScratchUp();
+      }
+
+      if (event.key === 'ArrowDown') {
+        event.preventDefault();
+        moveScratchDown();
+      }
+    });
+
+    resetScratch();
+    runTests();
+  </script>
+</body>
+</html>
